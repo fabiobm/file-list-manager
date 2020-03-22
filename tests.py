@@ -1,7 +1,7 @@
 import logging
 from unittest import TestCase
 
-from list_manager import add_to_list, display_list
+from list_manager import add_to_list, display_list, remove_from_list
 
 
 example_list = [
@@ -43,7 +43,7 @@ class AddTestCase(TestCase):
             self.initial_list, ["~/test/file", "~/test/subdir", "~/test/subdir2"]
         )
 
-    def test_add_simple_entries(self):
+    def test_add_regular_entries(self):
         add_to_list(
             self.initial_list,
             ["~/test/file2", "~/test/subdir/file3", "~/test/subdir/subdir/file4"],
@@ -65,7 +65,35 @@ class AddTestCase(TestCase):
 
 
 class RemoveTestCase(TestCase):
-    pass
+    def setUp(self):
+        logging.disable(logging.CRITICAL)
+        self.initial_list = [*example_list]
+
+    def test_remove_no_entries(self):
+        remove_from_list(self.initial_list, [])
+        self.assertEqual(self.initial_list, example_list)
+
+    def test_remove_invalid(self):
+        remove_from_list(self.initial_list, ["~/test//file/x"])
+        self.assertEqual(self.initial_list, example_list)
+
+    def test_remove_not_present(self):
+        remove_from_list(self.initial_list, ["~/test/file2", "~/test/subdir/file3"])
+        self.assertEqual(self.initial_list, example_list)
+
+    def test_remove_regular_entries(self):
+        remove_from_list(
+            self.initial_list,
+            ["~/test/file", "~/test/subdir/file", "~/test/subdir/subdir/file"],
+        )
+        self.assertEqual(
+            self.initial_list,
+            [
+                "~/test/subdir/other_file",
+                "~/test/subdir/subdir/other_other_file",
+                "~/test/subdir2",
+            ],
+        )
 
 
 class DisplayTestCase(TestCase):

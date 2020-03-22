@@ -95,6 +95,7 @@ def get_input(multiple=False):
 def add_to_list(file_dir_list, entries):
     """Add entries to the files/directories list."""
     modified = False
+
     for entry in entries:
         if entry.find("//") != -1:
             logger.info("New entry '%s' is not valid and will not be added", entry)
@@ -134,6 +135,23 @@ def add_to_list(file_dir_list, entries):
         file_dir_list.sort()
 
 
+def remove_from_list(file_dir_list, entries):
+    """Remove entries from the files/directories list."""
+    modified = False
+
+    for entry in entries:
+        if entry.find("//") != -1:
+            logger.info("Entry '%s' is not valid and will not be removed", entry)
+        elif entry.rstrip("/") not in file_dir_list:
+            logger.info("Entry '%s' is not in the list and will not be removed", entry)
+        else:
+            file_dir_list.remove(entry.rstrip("/"))
+            modified = True
+
+    if modified:
+        file_dir_list.sort()
+
+
 def display_list(file_dir_list, concatenate=False):
     """Return the files/directories list to be displayed in stdout."""
     return (" " if concatenate else "\n").join(file_dir_list)
@@ -154,9 +172,11 @@ def main():
         add_to_list(file_dir_list, get_input(multiple=True))
         save_to_file(file_dir_list, args.file)
     elif args.remove:
-        pass
+        remove_from_list(file_dir_list, get_input())
+        save_to_file(file_dir_list, args.file)
     elif args.remove_multiple:
-        pass
+        remove_from_list(file_dir_list, get_input(multiple=True))
+        save_to_file(file_dir_list, args.file)
     elif args.display:
         print(display_list(file_dir_list))
     elif args.concatenate:
